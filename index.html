@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FF Sensitivity Finder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    <header>
+      <h1>🎯 FF Sensitivity Finder</h1>
+      <p>Nhập dòng máy để nhận độ nhạy, nút bắn & DPI gợi ý</p>
+    </header>
+
+    <div class="search-box">
+      <input 
+        type="text" 
+        id="deviceInput" 
+        placeholder="VD: iPhone 11, Samsung A15, Xiaomi Redmi Note 12..."
+        autocomplete="off"
+      />
+      <button id="searchBtn">Tìm</button>
+    </div>
+
+    <div id="suggestions" class="suggestions"></div>
+
+    <div id="result" class="result hidden">
+      <div class="device-name">
+        <span id="deviceName"></span>
+      </div>
+
+      <div class="sensi-grid">
+        <div class="card">
+          <span class="label">General</span>
+          <span class="value" id="general">-</span>
+        </div>
+        <div class="card">
+          <span class="label">Red Dot</span>
+          <span class="value" id="reddot">-</span>
+        </div>
+        <div class="card">
+          <span class="label">2X Scope</span>
+          <span class="value" id="scope2x">-</span>
+        </div>
+        <div class="card">
+          <span class="label">4X Scope</span>
+          <span class="value" id="scope4x">-</span>
+        </div>
+        <div class="card">
+          <span class="label">Sniper</span>
+          <span class="value" id="sniper">-</span>
+        </div>
+        <div class="card">
+          <span class="label">Free Look</span>
+          <span class="value" id="freelook">-</span>
+        </div>
+      </div>
+
+      <div class="extra-grid">
+        <div class="extra-card">
+          <span class="label">🔘 Nút bắn</span>
+          <span class="value" id="fireBtn">-</span>
+        </div>
+        <div class="extra-card">
+          <span class="label">⚙️ DPI</span>
+          <span class="value" id="dpi">-</span>
+        </div>
+      </div>
+
+      <p class="note">⚠️ Đây là gợi ý tham khảo, hãy test và chỉnh theo cảm giác tay.</p>
+    </div>
+
+    <div id="notFound" class="not-found hidden">
+      Không tìm thấy máy. Thử nhập tên khác (VD: "iPhone 11", "A15", "Redmi").
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
