@@ -1,83 +1,195 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FF Sensitivity Finder</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FF Sensitivity Finder</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+body {
+  min-height:100vh; background:#0a0e1a; color:#e8ecf5;
+  display:flex; justify-content:center; padding:40px 16px;
+  position:relative; overflow-x:hidden;
+}
+.bg-glow {
+  position:fixed; inset:0;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(0,200,255,0.15), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(255,0,128,0.12), transparent 40%);
+  pointer-events:none; z-index:0;
+}
+.container { position:relative; z-index:1; width:100%; max-width:640px; }
+header { text-align:center; margin-bottom:32px; }
+header h1 {
+  font-size:1.9rem;
+  background:linear-gradient(90deg,#00d4ff,#ff2e9a);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  margin-bottom:8px;
+}
+header p { color:#8b96ad; font-size:0.95rem; }
+.search-box { display:flex; gap:10px; margin-bottom:8px; }
+.search-box input {
+  flex:1; padding:14px 18px; border-radius:12px;
+  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.05); color:#fff;
+  font-size:1rem; outline:none; transition:0.25s;
+}
+.search-box input:focus { border-color:#00d4ff; box-shadow:0 0 0 3px rgba(0,212,255,0.15); }
+.search-box button {
+  padding:14px 26px; border:none; border-radius:12px;
+  background:linear-gradient(135deg,#00d4ff,#ff2e9a);
+  color:#fff; font-weight:600; font-size:1rem; cursor:pointer; transition:0.25s;
+}
+.search-box button:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,212,255,0.35); }
+.suggestions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
+.suggestions span {
+  padding:6px 14px; border-radius:20px;
+  background:rgba(255,255,255,0.07); font-size:0.85rem;
+  color:#8b96ad; cursor:pointer; transition:0.2s;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.suggestions span:hover { background:rgba(0,212,255,0.15); color:#00d4ff; border-color:#00d4ff; }
+.result { margin-top:24px; animation:fadeIn 0.4s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+.device-name { text-align:center; font-size:1.3rem; font-weight:700; margin-bottom:20px; color:#fff; }
+.sensi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
+.card {
+  background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px; padding:16px 10px; text-align:center; transition:0.25s;
+}
+.card:hover { background:rgba(0,212,255,0.1); border-color:rgba(0,212,255,0.4); transform:translateY(-3px); }
+.card .label { display:block; font-size:0.8rem; color:#8b96ad; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px; }
+.card .value { font-size:1.5rem; font-weight:700; color:#00d4ff; }
+.extra-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.extra-card {
+  background:linear-gradient(135deg,rgba(255,46,154,0.12),rgba(0,212,255,0.12));
+  border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:18px; text-align:center;
+}
+.extra-card .label { display:block; font-size:0.85rem; color:#8b96ad; margin-bottom:8px; }
+.extra-card .value {
+  font-size:1.6rem; font-weight:700;
+  background:linear-gradient(90deg,#00d4ff,#ff2e9a);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.note { text-align:center; margin-top:20px; font-size:0.82rem; color:#8b96ad; }
+.not-found {
+  margin-top:24px; text-align:center; padding:20px; border-radius:14px;
+  background:rgba(255,60,60,0.1); border:1px solid rgba(255,60,60,0.3); color:#ff6b6b;
+}
+.hidden { display:none; }
+@media (max-width:480px) {
+  .sensi-grid { grid-template-columns:repeat(2,1fr); }
+  header h1 { font-size:1.5rem; }
+  .search-box { flex-direction:column; }
+}
+</style>
 </head>
 <body>
-  <div class="bg-glow"></div>
+<div class="bg-glow"></div>
+<div class="container">
+  <header>
+    <h1>🎯 FF Sensitivity Finder</h1>
+    <p>Nhập dòng máy để nhận độ nhạy, nút bắn & DPI gợi ý</p>
+  </header>
 
-  <div class="container">
-    <header>
-      <h1>🎯 FF Sensitivity Finder</h1>
-      <p>Nhập dòng máy để nhận độ nhạy, nút bắn & DPI gợi ý</p>
-    </header>
-
-    <div class="search-box">
-      <input 
-        type="text" 
-        id="deviceInput" 
-        placeholder="VD: iPhone 11, Samsung A15, Xiaomi Redmi Note 12..."
-        autocomplete="off"
-      />
-      <button id="searchBtn">Tìm</button>
-    </div>
-
-    <div id="suggestions" class="suggestions"></div>
-
-    <div id="result" class="result hidden">
-      <div class="device-name">
-        <span id="deviceName"></span>
-      </div>
-
-      <div class="sensi-grid">
-        <div class="card">
-          <span class="label">General</span>
-          <span class="value" id="general">-</span>
-        </div>
-        <div class="card">
-          <span class="label">Red Dot</span>
-          <span class="value" id="reddot">-</span>
-        </div>
-        <div class="card">
-          <span class="label">2X Scope</span>
-          <span class="value" id="scope2x">-</span>
-        </div>
-        <div class="card">
-          <span class="label">4X Scope</span>
-          <span class="value" id="scope4x">-</span>
-        </div>
-        <div class="card">
-          <span class="label">Sniper</span>
-          <span class="value" id="sniper">-</span>
-        </div>
-        <div class="card">
-          <span class="label">Free Look</span>
-          <span class="value" id="freelook">-</span>
-        </div>
-      </div>
-
-      <div class="extra-grid">
-        <div class="extra-card">
-          <span class="label">🔘 Nút bắn</span>
-          <span class="value" id="fireBtn">-</span>
-        </div>
-        <div class="extra-card">
-          <span class="label">⚙️ DPI</span>
-          <span class="value" id="dpi">-</span>
-        </div>
-      </div>
-
-      <p class="note">⚠️ Đây là gợi ý tham khảo, hãy test và chỉnh theo cảm giác tay.</p>
-    </div>
-
-    <div id="notFound" class="not-found hidden">
-      Không tìm thấy máy. Thử nhập tên khác (VD: "iPhone 11", "A15", "Redmi").
-    </div>
+  <div class="search-box">
+    <input type="text" id="deviceInput" placeholder="VD: iPhone 11, Samsung A15, Redmi..." autocomplete="off"/>
+    <button id="searchBtn">Tìm</button>
   </div>
 
-  <script src="script.js"></script>
+  <div id="suggestions" class="suggestions"></div>
+
+  <div id="result" class="result hidden">
+    <div class="device-name"><span id="deviceName"></span></div>
+    <div class="sensi-grid">
+      <div class="card"><span class="label">General</span><span class="value" id="general">-</span></div>
+      <div class="card"><span class="label">Red Dot</span><span class="value" id="reddot">-</span></div>
+      <div class="card"><span class="label">2X Scope</span><span class="value" id="scope2x">-</span></div>
+      <div class="card"><span class="label">4X Scope</span><span class="value" id="scope4x">-</span></div>
+      <div class="card"><span class="label">Sniper</span><span class="value" id="sniper">-</span></div>
+      <div class="card"><span class="label">Free Look</span><span class="value" id="freelook">-</span></div>
+    </div>
+    <div class="extra-grid">
+      <div class="extra-card"><span class="label">🔘 Nút bắn</span><span class="value" id="fireBtn">-</span></div>
+      <div class="extra-card"><span class="label">⚙️ DPI</span><span class="value" id="dpi">-</span></div>
+    </div>
+    <p class="note">⚠️ Đây là gợi ý tham khảo, hãy test và chỉnh theo cảm giác tay.</p>
+  </div>
+
+  <div id="notFound" class="not-found hidden">
+    Không tìm thấy máy. Thử nhập tên khác (VD: "iPhone 11", "A15", "Redmi").
+  </div>
+</div>
+
+<script>
+const devices = [
+  { names:["iphone 11","ip 11"], general:187, reddot:179, scope2x:168, scope4x:155, sniper:96, freelook:151, fireBtn:55, dpi:"Không áp dụng (iOS)" },
+  { names:["iphone xr","ip xr"], general:185, reddot:177, scope2x:166, scope4x:153, sniper:92, freelook:147, fireBtn:55, dpi:"Không áp dụng (iOS)" },
+  { names:["iphone x","ip x"], general:185, reddot:177, scope2x:166, scope4x:153, sniper:92, freelook:147, fireBtn:55, dpi:"Không áp dụng (iOS)" },
+  { names:["iphone xs"], general:185, reddot:177, scope2x:166, scope4x:153, sniper:92, freelook:147, fireBtn:55, dpi:"Không áp dụng (iOS)" },
+  { names:["iphone se"], general:183, reddot:175, scope2x:164, scope4x:151, sniper:90, freelook:143, fireBtn:55, dpi:"Không áp dụng (iOS)" },
+  { names:["iphone 8","ip 8"], general:178, reddot:169, scope2x:158, scope4x:145, sniper:84, freelook:137, fireBtn:55, dpi:"Không áp dụng (iOS)" },
+  { names:["iphone 7","ip 7"], general:178, reddot:169, scope2x:158, scope4x:145, sniper:84, freelook:137, fireBtn:55, dpi:"Không áp dụng (iOS)" },
+  { names:["samsung a10","a10"], general:100, reddot:75, scope2x:68, scope4x:52, sniper:45, freelook:100, fireBtn:50, dpi:400 },
+  { names:["samsung a11","a11"], general:100, reddot:75, scope2x:68, scope4x:52, sniper:45, freelook:100, fireBtn:50, dpi:400 },
+  { names:["samsung a12","a12"], general:100, reddot:75, scope2x:68, scope4x:52, sniper:45, freelook:100, fireBtn:50, dpi:400 },
+  { names:["samsung a13","a13"], general:140, reddot:130, scope2x:145, scope4x:135, sniper:90, freelook:70, fireBtn:55, dpi:450 },
+  { names:.getElementById["samsung a14","a14"], general:140, reddot:130, scope2x:145, scope4x:135, sniper(":90, freelook:70, fireBtn:55, dpi:450 },
+  { names:["samsung a15","a15"], general:device150, reddot:140, scope2x:155, scope4x:145, sniper:95, freelook:71, fireBtn:58, dpi:480 },
+  {Input names:["samsung a16","a16"], general:150, reddot:140, scope2x:155, scope4x:145, sniper:95, freelook:71, fireBtn");
+:58, dpi:480 },
+  { names:["samsung a22"], general:140, reddot:130, scope2x:145, scope4xconst:135, sniper:90, freelook:70, fireBtn:55, dpi:450 },
+  { names:["samsung a23"], general:140, reddot:130, scope2x:145, scope4x:135, sniper:90, freelook:70, fireBtn:55, dpi:450 },
+  { names:["samsung a24"], general:150, reddot:140, scope2x:155, scope4x:145, sniper:95, freelook:71, fireBtn:58, dpi:480 },
+  { names:["samsung a32"], general:150, reddot:140, scope2x:155, scope4x:145, sniper:95, freelook:71, fireBtn:58, dpi:480 },
+  { names:["samsung a34"], general:160, reddot:160, scope2x:160, scope4x:151, sniper:100, freelook:71, fireBtn:60, dpi:500 },
+  { names:["samsung a54"], general:160, reddot:160, scope2x:160, scope4x:151, sniper:100, freelook:71, fireBtn:60, dpi:500 },
+  { names:["samsung s20"], general:160, reddot:160, scope2x:160, scope4x:151, sniper:100, freelook:71, fireBtn:60, dpi:500 },
+  { names:["samsung s21"], general:160, reddot:160, scope2x:160, scope4x:151, sniper:100, freelook:71, fireBtn:60, dpi:500 },
+  { names:["samsung s22"], general:160, reddot:160, scope2x:160, scope4x:151, sniper:100, freelook:71, fireBtn:60, dpi:500 },
+  { names:["samsung s23"], general:160, reddot:160, scope2x:160, scope4x:151, sniper:100, freelook:71, fireBtn:60, dpi:500 },
+  { names:["samsung s24"], general:160, reddot:160, scope2x:160, scope4x:151, sniper:100, freelook:71, fireBtn:60, dpi:500 },
+  { names:["oppo","realme","vivo"], general:100, reddot:90, scope2x:90, scope4x:90, sniper:100, freelook:20, fireBtn:52, dpi:420 },
+  { names:["xiaomi","redmi","poco"], general:130, reddot:120, scope2x:115, scope4x:105, sniper:85, freelook:75, fireBtn:56, dpi:460 }
+];
+
+const quickPicks = ["iPhone 11","Samsung A15","Samsung A54","Redmi","OPPO","Vivo"];
+const input = document searchBtn = document.getElementById("searchBtn");
+const suggestionsEl = document.getElementById("suggestions");
+const resultEl = document.getElementById("result");
+const notFoundEl = document.getElementById("notFound");
+
+quickPicks.forEach(name => {
+  const span = document.createElement("span");
+  span.textContent = name;
+  span.onclick = () => { input.value = name; search(); };
+  suggestionsEl.appendChild(span);
+});
+
+function search() {
+  const q = input.value.trim().toLowerCase();
+  if (!q) return;
+  const found = devices.find(d => d.names.some(n => q.includes(n) || n.includes(q)));
+  if (found) {
+    resultEl.classList.remove("hidden");
+    notFoundEl.classList.add("hidden");
+    document.getElementById("deviceName").textContent = "📱 " + input.value;
+    document.getElementById("general").textContent = found.general;
+    document.getElementById("reddot").textContent = found.reddot;
+    document.getElementById("scope2x").textContent = found.scope2x;
+    document.getElementById("scope4x").textContent = found.scope4x;
+    document.getElementById("sniper").textContent = found.sniper;
+    document.getElementById("freelook").textContent = found.freelook;
+    document.getElementById("fireBtn").textContent = found.fireBtn + "%";
+    document.getElementById("dpi").textContent = found.dpi;
+  } else {
+    resultEl.classList.add("hidden");
+    notFoundEl.classList.remove("hidden");
+  }
+}
+
+searchBtn.onclick = search;
+input.addEventListener("keydown", e => { if (e.key === "Enter") search(); });
+</script>
 </body>
 </html>
